@@ -14,12 +14,13 @@ export function Sidebar({ mobileOpen, onNavigate }: { mobileOpen: boolean; onNav
   const dispatch = useDashboardDispatch();
   const { workbook } = useDashboardData();
 
-  // August 2026's Performance data is held from clients (see
-  // ROI_CLIENT_HOLD_FROM_MONTH_KEY in lib/roi-metrics.ts) — hide it from the
-  // month picker entirely so a client can't select it in the first place.
+  // Months at or after the hold key (see ROI_CLIENT_HOLD_FROM_MONTH_KEY in
+  // lib/roi-metrics.ts) are held from clients, so hide them from the month
+  // picker entirely and a client can't select one in the first place.
   // buildRoiViewModel's own hold is the real gate; this just keeps the picker
-  // from offering a month that would show "Report Coming Soon" anyway.
-  const ROI_CLIENT_HOLD_FROM_MONTH_KEY = "2026-09";
+  // from offering a month that would show "Report Coming Soon" anyway. Keep
+  // this value in sync with lib/roi-metrics.ts.
+  const ROI_CLIENT_HOLD_FROM_MONTH_KEY = "2026-10";
   const availableMonths = useMemo(() => {
     const months = getAllMonthKeys(workbook, state.pendingClientSlug);
     return state.isAdmin ? months : months.filter((month) => month < ROI_CLIENT_HOLD_FROM_MONTH_KEY);

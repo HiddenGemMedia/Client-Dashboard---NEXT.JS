@@ -592,12 +592,13 @@ function buildEmptyMetaViewModel(clientName: string, selectedMonth: string, isCo
 const META_ADS_EXCLUDED_CLIENT_SLUGS = ["dwell-luxury-rentals"];
 const META_ADS_DWELL_HOLD_FROM_MONTH_KEY = "2026-07";
 
-// August 2026's Meta Ads data is admin-only for now — client sessions see the
-// "Report Coming Soon" placeholder regardless of whether dashboard_meta_ads
-// rows exist yet, while admins see the real report. Bump this forward (or
-// remove the check below) once August is ready to show clients, the same way
-// July's hold was lifted. Only affects the Meta Ads view.
-const META_ADS_CLIENT_HOLD_FROM_MONTH_KEY = "2026-09";
+// The latest month's Meta Ads data is admin-only until it is released: client
+// sessions see the "Report Coming Soon" placeholder for any month at or after
+// this key, regardless of whether dashboard_meta_ads rows exist yet, while
+// admins see the real report. September 2026 was released by moving this to
+// 2026-10. Bump it forward (or remove the check below) again once the next
+// month is ready to show clients. Only affects the Meta Ads view.
+const META_ADS_CLIENT_HOLD_FROM_MONTH_KEY = "2026-10";
 
 /**
  * Builds the entire Meta Ads view model in one shot, mirroring renderMetaView() +
