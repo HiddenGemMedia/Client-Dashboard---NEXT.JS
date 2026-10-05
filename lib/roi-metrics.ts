@@ -364,7 +364,8 @@ export type RoiViewModel = {
     websiteTotalAdSpend: string;
     websiteTotalAdSpendNote: string;
     websiteTrafficChartSub: string;
-    chart: { shortLabels: string[]; series: number[] };
+    // null = no tracked sessions that month (e.g. a tracking outage), plotted as a gap rather than a drop to 0
+    chart: { shortLabels: string[]; series: (number | null)[] };
   };
 
   revenueBookings: {
@@ -548,6 +549,15 @@ function buildEmptyViewModel(clientName: string, selectedMonth: string, isComing
   };
 }
 
+// Months where a client's website traffic is shown as "N/A" (and left as a gap
+// in the trend chart) instead of 0, because tracking was broken that month and
+// any sheet value is unreliable. Deliberately an explicit client + month list,
+// not a general "blank means N/A" rule: every other blank still reads as before.
+// Remove an entry once the real number is available.
+const WEBSITE_TRAFFIC_NA_MONTHS: Record<string, string[]> = {
+  "treetop-escapes": ["2026-09"],
+};
+
 // August 2026's Performance data is admin-only for now, same hold as Meta
 // Ads' — client sessions see the "Report Coming Soon" placeholder regardless
 // of whether dashboard_performance rows exist yet, while admins see the real
@@ -664,6 +674,8 @@ export function buildRoiViewModel(
   const currentFunnelViews = numeric(latestMonth.totalViews);
   const currentFunnelFollowers = numeric(latestMonth.totalFollowers);
   const currentFunnelSessions = numeric(latestMonth.websiteTraffic);
+  const trafficIsNa = (monthKey: string) => (WEBSITE_TRAFFIC_NA_MONTHS[canonicalSlug] || []).includes(monthKey);
+  const latestTrafficNa = trafficIsNa(latestMonth.key);
   const currentFunnelLeads = numeric(latestMonth.newLeads);
   const currentFunnelRevenue = numeric(latestMonth.directRevenue);
   // The original hardcodes these funnel bar widths as a fixed decorative
@@ -721,12 +733,19 @@ export function buildRoiViewModel(
     funnel: {
       views: { fillRatio: funnelShowcaseWidths.views, value: formatRoiCompactNumber(currentFunnelViews) },
       followers: { fillRatio: funnelShowcaseWidths.followers, value: formatRoiCompactNumber(currentFunnelFollowers) },
-      sessions: { fillRatio: funnelShowcaseWidths.sessions, value: formatRoiCompactNumber(currentFunnelSessions) },
+      sessions: {
+        fillRatio: funnelShowcaseWidths.sessions,
+        value: latestTrafficNa ? "N/A" : formatRoiCompactNumber(currentFunnelSessions),
+      },
       leads: { fillRatio: funnelShowcaseWidths.leads, value: formatRoiCompactNumber(currentFunnelLeads) },
       revenue: { fillRatio: funnelShowcaseWidths.revenue, value: formatRoiCompactCurrency(currentFunnelRevenue) },
       followersConv: `↓ ${formatPercent(share(currentFunnelFollowers, currentFunnelViews), 1)} to followers ↓`,
-      trafficConv: `↓ ${formatPercent(share(currentFunnelSessions, currentFunnelFollowers), 1)} to website sessions ↓`,
-      leadsConv: `↓ ${formatPercent(share(currentFunnelLeads, currentFunnelSessions), 1)} to leads ↓`,
+      trafficConv: latestTrafficNa
+        ? "↓ N/A to website sessions ↓"
+        : `↓ ${formatPercent(share(currentFunnelSessions, currentFunnelFollowers), 1)} to website sessions ↓`,
+      leadsConv: latestTrafficNa
+        ? "↓ N/A to leads ↓"
+        : `↓ ${formatPercent(share(currentFunnelLeads, currentFunnelSessions), 1)} to leads ↓`,
       revenueConv: "↓ revenue ↓",
       costFollower: formatCurrency(currentFunnelFollowers ? numeric(latestMonth.adSpend) / currentFunnelFollowers : 0),
       costLead: formatCurrency(currentFunnelLeads ? numeric(latestMonth.adSpend) / currentFunnelLeads : 0),
@@ -830,7 +849,7 @@ export function buildRoiViewModel(
     },
 
     websiteTraffic: {
-      websiteTotalSessions: formatRoiCompactNumber(latestMonth.websiteTrafficRaw),
+      websiteTotalSessions: latestTrafficNa ? "N/A" : formatRoiCompactNumber(latestMonth.websiteTrafficRaw),
       websiteSessionsMonthLabel: currentMonthBracketLabel,
       websiteTotalSessionsNote: latestMonth.label,
       websitePeakLabel: peakTrafficMonth ? `${peakTrafficMonth.shortLabel.toUpperCase()} ${peakTrafficMonth.key.slice(0, 4)} PEAK` : "Peak Month",
@@ -840,7 +859,7 @@ export function buildRoiViewModel(
       websiteTrafficChartSub: peakTrafficMonth
         ? `Monthly sessions · bell curve peaking ${peakTrafficMonth.shortLabel} ${peakTrafficMonth.key.slice(0, 4)}`
         : "Monthly sessions",
-      chart: { shortLabels, series: roiMonths.map((m) => m.websiteTraffic) },
+      chart: { shortLabels, series: roiMonths.map((m) => (trafficIsNa(m.key) ? null : m.websiteTraffic)) },
     },
 
     revenueBookings: {
