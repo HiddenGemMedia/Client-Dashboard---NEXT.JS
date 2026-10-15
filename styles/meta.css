@@ -473,6 +473,23 @@
       font-size: 11px;
     }
 
+    /* Simplified (admin-only) campaign sections: table headers and summary cards one point larger. */
+    .meta-simplified .meta-campaign-table th {
+      font-size: 10px;
+    }
+
+    .meta-simplified .meta-compact-summary-card .meta-retarget-stat-label {
+      font-size: 13px;
+    }
+
+    .meta-simplified .meta-compact-summary-value {
+      font-size: 23px;
+    }
+
+    .meta-simplified .meta-compact-summary-card .meta-pill {
+      font-size: 14px;
+    }
+
     .meta-comparison-toggle-button {
       display: inline-flex;
       align-items: center;

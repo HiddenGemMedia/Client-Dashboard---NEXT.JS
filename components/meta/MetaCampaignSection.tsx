@@ -359,7 +359,7 @@ export function MetaCampaignSection({ section }: { section: MetaCampaignSectionM
   );
 
   return (
-    <div className="meta-section" data-meta-campaign-section={chartKey} style={{ margin: "26px 0 20px" }}>
+    <div className={`meta-section${simplified ? " meta-simplified" : ""}`} data-meta-campaign-section={chartKey} style={{ margin: "26px 0 20px" }}>
       <div className="meta-stage">
         <div className="meta-stage-copy">
           <span className="meta-stage-num">—</span>
