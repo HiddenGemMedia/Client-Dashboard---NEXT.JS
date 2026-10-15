@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import type { ApexOptions } from "apexcharts";
+import { useSimplifiedLayout } from "@/hooks/useSimplifiedLayout";
 import type { MetaViewModel } from "@/lib/meta-model";
 import { ApexChart } from "@/components/charts/ApexChart";
 import {
@@ -55,6 +56,7 @@ function MetaKpiNoSpark({ label, items }: { label: string; items: { label: strin
 
 /** Ported from renderMetaSummaryStrip() + renderMetaPortfolio() + renderMetaComparisonTable(). */
 export function MetaPortfolioSummary({ model }: { model: MetaViewModel }) {
+  const simplified = useSimplifiedLayout();
   const { summaryStrip, portfolio, comparisonRows, showDirectRevenueColumn } = model;
 
   const revSpendOptions: ApexOptions = useMemo(
@@ -128,99 +130,101 @@ export function MetaPortfolioSummary({ model }: { model: MetaViewModel }) {
         <MetaSummaryStat label="Views" value={summaryStrip.views} note={summaryStrip.viewsNote} />
       </section>
 
-      <section className="meta-section" id="meta-portfolio">
-        <div className="meta-stage">
-          <div className="meta-stage-copy">
-            <span className="meta-stage-num">01</span>
-            <span className="meta-stage-title">Portfolio Snapshot</span>
-            <div className="meta-stage-line" />
+      {!simplified && (
+        <section className="meta-section" id="meta-portfolio">
+          <div className="meta-stage">
+            <div className="meta-stage-copy">
+              <span className="meta-stage-num">01</span>
+              <span className="meta-stage-title">Portfolio Snapshot</span>
+              <div className="meta-stage-line" />
+            </div>
+            <div className="meta-stage-anchor" />
           </div>
-          <div className="meta-stage-anchor" />
-        </div>
 
-        <div className="meta-table-card meta-portfolio-table">
-          <div className="meta-table-wrap">
-            <table className="meta-table">
-              <thead>
-                <tr>
-                  <th>Month</th>
-                  <th>Campaign</th>
-                  <th>Spend</th>
-                  <th>Revenue</th>
-                  {showDirectRevenueColumn && <th>Direct Booking Revenue</th>}
-                  <th>ROAS</th>
-                  <th>Impressions</th>
-                  <th>Visits</th>
-                  <th>Leads/Followers</th>
-                  <th>IG Bio Leads</th>
-                  <th>Bookings (Email)</th>
-                  <th>Bookings (FB)</th>
-                  <th>Cost/Booking</th>
-                  <th>% Avg BV</th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparisonRows.map((row, index) => (
-                  <tr key={`${row.key}-${row.campaignType}-${index}`}>
-                    <td>
-                      <span className={`meta-month-pill meta-month-${row.monthIndex}`}>{row.shortLabel}</span>
-                    </td>
-                    <td>{row.campaignType}</td>
-                    <td>{formatCurrency(row.spend, 0)}</td>
-                    <td>{formatCurrency(row.revenue, 0)}</td>
-                    {showDirectRevenueColumn && <td>{row.directRevenue && row.directRevenue > 0 ? formatCurrency(row.directRevenue, 0) : "—"}</td>}
-                    <td>{formatMultiple(row.roas)}</td>
-                    <td>{formatNumber(row.impressions)}</td>
-                    <td>{formatNumber(row.profileVisits)}</td>
-                    <td>{formatNullableNumber(row.leadsFollowers)}</td>
-                    <td>{formatNullableNumber(row.igBioLeads)}</td>
-                    <td>{formatNullableNumber(row.bookingsEmail)}</td>
-                    <td>{formatNullableNumber(row.bookingsFb)}</td>
-                    <td>{formatNullableCurrency(row.costPerBooking)}</td>
-                    <td>{formatNullablePercent(row.pctAvgBookingValue)}</td>
+          <div className="meta-table-card meta-portfolio-table">
+            <div className="meta-table-wrap">
+              <table className="meta-table">
+                <thead>
+                  <tr>
+                    <th>Month</th>
+                    <th>Campaign</th>
+                    <th>Spend</th>
+                    <th>Revenue</th>
+                    {showDirectRevenueColumn && <th>Direct Booking Revenue</th>}
+                    <th>ROAS</th>
+                    <th>Impressions</th>
+                    <th>Visits</th>
+                    <th>Leads/Followers</th>
+                    <th>IG Bio Leads</th>
+                    <th>Bookings (Email)</th>
+                    <th>Bookings (FB)</th>
+                    <th>Cost/Booking</th>
+                    <th>% Avg BV</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {comparisonRows.map((row, index) => (
+                    <tr key={`${row.key}-${row.campaignType}-${index}`}>
+                      <td>
+                        <span className={`meta-month-pill meta-month-${row.monthIndex}`}>{row.shortLabel}</span>
+                      </td>
+                      <td>{row.campaignType}</td>
+                      <td>{formatCurrency(row.spend, 0)}</td>
+                      <td>{formatCurrency(row.revenue, 0)}</td>
+                      {showDirectRevenueColumn && <td>{row.directRevenue && row.directRevenue > 0 ? formatCurrency(row.directRevenue, 0) : "—"}</td>}
+                      <td>{formatMultiple(row.roas)}</td>
+                      <td>{formatNumber(row.impressions)}</td>
+                      <td>{formatNumber(row.profileVisits)}</td>
+                      <td>{formatNullableNumber(row.leadsFollowers)}</td>
+                      <td>{formatNullableNumber(row.igBioLeads)}</td>
+                      <td>{formatNullableNumber(row.bookingsEmail)}</td>
+                      <td>{formatNullableNumber(row.bookingsFb)}</td>
+                      <td>{formatNullableCurrency(row.costPerBooking)}</td>
+                      <td>{formatNullablePercent(row.pctAvgBookingValue)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
 
-        <div className="meta-feature-grid">
-          <div className="meta-chart-card">
-            <div className="meta-chart-title">Revenue vs. Spend Trend</div>
-            <div className="meta-chart-sub">Monthly direct revenue and total spend</div>
-            <div id="meta-rev-spend">
-              <ApexChart options={revSpendOptions} series={portfolio.revSpendChart.series} type="bar" height={280} />
+          <div className="meta-feature-grid">
+            <div className="meta-chart-card">
+              <div className="meta-chart-title">Revenue vs. Spend Trend</div>
+              <div className="meta-chart-sub">Monthly direct revenue and total spend</div>
+              <div id="meta-rev-spend">
+                <ApexChart options={revSpendOptions} series={portfolio.revSpendChart.series} type="bar" height={280} />
+              </div>
+            </div>
+            <div className="meta-feature-stack">
+              <MetaKpiNoSpark label="Total ad spend" items={portfolio.totalAdSpendKpi} />
+              <MetaKpiNoSpark label="Avg booking value" items={portfolio.avgBookingValueKpi} />
             </div>
           </div>
-          <div className="meta-feature-stack">
-            <MetaKpiNoSpark label="Total ad spend" items={portfolio.totalAdSpendKpi} />
-            <MetaKpiNoSpark label="Avg booking value" items={portfolio.avgBookingValueKpi} />
-          </div>
-        </div>
 
-        <div className="meta-chart-grid meta-chart-grid-2">
-          <div className="meta-chart-card">
-            <div className="meta-chart-title">Avg booking value trend</div>
-            <div className="meta-chart-sub">Month-over-month booking value lines shown</div>
-            <div id="meta-booking-value-trend">
-              <ApexChart
-                options={bookingValueOptions}
-                series={[{ name: "Avg booking value", type: "line", data: portfolio.bookingValueChart.series }]}
-                type="line"
-                height={280}
-              />
+          <div className="meta-chart-grid meta-chart-grid-2">
+            <div className="meta-chart-card">
+              <div className="meta-chart-title">Avg booking value trend</div>
+              <div className="meta-chart-sub">Month-over-month booking value lines shown</div>
+              <div id="meta-booking-value-trend">
+                <ApexChart
+                  options={bookingValueOptions}
+                  series={[{ name: "Avg booking value", type: "line", data: portfolio.bookingValueChart.series }]}
+                  type="line"
+                  height={280}
+                />
+              </div>
+            </div>
+            <div className="meta-chart-card">
+              <div className="meta-chart-title">Monthly Revenue by Campaign Type</div>
+              <div className="meta-chart-sub">How each campaign type contributed each month</div>
+              <div id="meta-bookings">
+                <ApexChart options={campaignRevenueOptions} series={portfolio.campaignRevenueChart.series} type="bar" height={280} />
+              </div>
             </div>
           </div>
-          <div className="meta-chart-card">
-            <div className="meta-chart-title">Monthly Revenue by Campaign Type</div>
-            <div className="meta-chart-sub">How each campaign type contributed each month</div>
-            <div id="meta-bookings">
-              <ApexChart options={campaignRevenueOptions} series={portfolio.campaignRevenueChart.series} type="bar" height={280} />
-            </div>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import type { ApexOptions } from "apexcharts";
+import { useSimplifiedLayout } from "@/hooks/useSimplifiedLayout";
 import type { MetaCampaignSectionModel, MetaRow } from "@/lib/meta-model";
 import {
   primaryRoas,
@@ -147,6 +148,7 @@ function DiscoveryTableRows({ rows }: { rows: MetaRow[] }) {
 /** Ported from renderMetaCampaignSection() — retargeting / discovery / generic variants. */
 export function MetaCampaignSection({ section }: { section: MetaCampaignSectionModel }) {
   const { campaignType, chartKey, isRetargeting, isDiscovery, rows, rangeLabel, retargetingSummary, discoverySummary, retargetingTakeaways, discoveryTakeaways, volumeMetric, efficiencyMetric } = section;
+  const simplified = useSimplifiedLayout();
 
   const campaignMonthLabels = useMemo(() => rows.map((row) => row.shortYearLabel), [rows]);
   const performanceValues = useMemo(() => rows.map((row) => primaryRoas(row)), [rows]);
@@ -389,27 +391,35 @@ export function MetaCampaignSection({ section }: { section: MetaCampaignSectionM
       </div>
 
       {isRetargeting && retargetingSummary && (
-        <div className="meta-retarget-feature-grid" style={{ marginTop: 22 }}>
-          <div className="meta-retarget-kpi-stack">
+        <div className={simplified ? "meta-discovery-summary-grid" : "meta-retarget-feature-grid"} style={{ marginTop: 22 }}>
+          <div className="meta-retarget-kpi-stack" style={simplified ? { display: "contents" } : undefined}>
             <MetaAverageStatCard label="Cost/booking average" value={formatCurrency(retargetingSummary.avgCostPerBooking)} note={retargetingSummary.avgPeriodLabel} />
             <MetaAverageStatCard label="Avg booking value" value={formatCurrency(retargetingSummary.avgBookingValue)} note={retargetingSummary.avgPeriodLabel} />
             <MetaAverageStatCard label="Avg ROAS" value={formatMultiple(retargetingSummary.avgRoas)} note={retargetingSummary.avgPeriodLabel} />
           </div>
-          <MetaChartCard title="Spend vs attributed revenue" subtitle="Total monthly ad spend vs total revenue generated" id={`meta-${chartKey}-spend-revenue`}>
-            <ApexChart
-              options={spendRevenueOptions}
-              series={[
-                { name: "Spend", data: spendValues },
-                { name: "Attributed revenue", data: revenueValues },
-              ]}
-              type="bar"
-              height={240}
-            />
-          </MetaChartCard>
+          {!simplified && (
+            <MetaChartCard title="Spend vs attributed revenue" subtitle="Total monthly ad spend vs total revenue generated" id={`meta-${chartKey}-spend-revenue`}>
+              <ApexChart
+                options={spendRevenueOptions}
+                series={[
+                  { name: "Spend", data: spendValues },
+                  { name: "Attributed revenue", data: revenueValues },
+                ]}
+                type="bar"
+                height={240}
+              />
+            </MetaChartCard>
+          )}
         </div>
       )}
 
-      {isRetargeting && (
+      {isRetargeting && simplified && (
+        <div style={{ marginTop: 22 }}>
+          <MetaTakeawayCard items={retargetingTakeaways} periodLabel={rangeLabel} />
+        </div>
+      )}
+
+      {isRetargeting && !simplified && (
         <div className="meta-chart-grid meta-chart-grid-2" style={{ marginTop: 22 }}>
           <MetaChartCard title="ROAS by month" subtitle="Shows how efficiently retargeting turned spend into revenue each month" id={`meta-${chartKey}-roas-month`}>
             <ApexChart
@@ -436,7 +446,13 @@ export function MetaCampaignSection({ section }: { section: MetaCampaignSectionM
         </div>
       )}
 
-      {isDiscovery && (
+      {isDiscovery && simplified && (
+        <div style={{ marginTop: 22 }}>
+          <MetaTakeawayCard items={discoveryTakeaways} periodLabel={rangeLabel} />
+        </div>
+      )}
+
+      {isDiscovery && !simplified && (
         <>
           <div className="meta-chart-grid meta-chart-grid-2" style={{ marginTop: 22 }}>
             <MetaChartCard title="Spend vs attributed revenue" subtitle="Monthly spend alongside total revenue generated" id={`meta-${chartKey}-spend-revenue`}>
@@ -476,7 +492,7 @@ export function MetaCampaignSection({ section }: { section: MetaCampaignSectionM
         </>
       )}
 
-      {!isRetargeting && !isDiscovery && (
+      {!isRetargeting && !isDiscovery && !simplified && (
         <div className="meta-chart-grid meta-chart-grid-3" style={{ marginTop: 22 }}>
           <MetaChartCard title={`${campaignType} performance`} subtitle="ROAS or blended ROAS by month" id={`meta-${chartKey}-performance`}>
             <ApexChart options={performanceOptions} series={[{ name: "ROAS", type: "line", data: performanceValues }]} type="line" height={250} />

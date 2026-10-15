@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import type { ApexOptions } from "apexcharts";
 import type { RoiViewModel } from "@/lib/roi-metrics";
 import { ApexChart } from "@/components/charts/ApexChart";
+import { useSimplifiedLayout } from "@/hooks/useSimplifiedLayout";
 import { buildResponsiveXAxisLabelOptions } from "@/lib/chart-utils";
 import { formatNumber, formatPercent, numeric, share } from "@/lib/format";
 
@@ -15,6 +16,7 @@ const MUTED_TEXT = "#94A3B8";
 const GRID_COLOR = "#E6EEF8";
 
 export function AudienceSection({ model }: { model: RoiViewModel }) {
+  const simplified = useSimplifiedLayout();
   const { audience: aud } = model;
 
   const followersChartOptions: ApexOptions = useMemo(
@@ -277,18 +279,20 @@ export function AudienceSection({ model }: { model: RoiViewModel }) {
           </div>
         </div>
       </div>
-      <div className="pp-grid pp-grid-2 pp-block-gap">
-        <div className="pp-glass pp-chart-tile">
-          <div className="pp-chart-head">
-            <div className="pp-chart-title">Follower Growth</div>
-            <div className="pp-chart-sub">Monthly cumulative · all platforms</div>
-          </div>
-          <div className="pp-chart-body">
-            <div id="followersChart" role="img" aria-label="Follower growth chart">
-              <ApexChart options={followersChartOptions} series={followersSeries} type="bar" height={240} />
+      <div className={`pp-grid${simplified ? "" : " pp-grid-2"} pp-block-gap`}>
+        {!simplified && (
+          <div className="pp-glass pp-chart-tile">
+            <div className="pp-chart-head">
+              <div className="pp-chart-title">Follower Growth</div>
+              <div className="pp-chart-sub">Monthly cumulative · all platforms</div>
+            </div>
+            <div className="pp-chart-body">
+              <div id="followersChart" role="img" aria-label="Follower growth chart">
+                <ApexChart options={followersChartOptions} series={followersSeries} type="bar" height={240} />
+              </div>
             </div>
           </div>
-        </div>
+        )}
         <div className="pp-glass pp-chart-tile">
           <div className="pp-chart-head">
             <div className="pp-chart-title">Platform Distribution</div>

@@ -9,11 +9,13 @@ import { MetaPortfolioSummary } from "./MetaPortfolioSummary";
 import { MetaCampaignHighlightCard } from "./MetaCampaignHighlightCard";
 import { MetaCampaignSection } from "./MetaCampaignSection";
 import { MetaInsights } from "./MetaInsights";
+import { useSimplifiedLayout } from "@/hooks/useSimplifiedLayout";
 
 /** Ported from renderMetaView() — top-level Meta Ads view container. */
 export function MetaView() {
   const { isAdmin, availableClients, selectedClientSlug, selectedMonth, metaExpandedCampaigns } = useDashboardState();
   const { workbook, metaAnalysis } = useDashboardData();
+  const simplified = useSimplifiedLayout();
 
   const client = availableClients.find((c) => c.slug === selectedClientSlug) || null;
 
@@ -92,7 +94,7 @@ export function MetaView() {
           <section className="meta-section" id="meta-campaigns">
             <div className="meta-stage">
               <div className="meta-stage-copy">
-                <span className="meta-stage-num">02</span>
+                <span className="meta-stage-num">{simplified ? "01" : "02"}</span>
                 <span className="meta-stage-title">Campaign Channels</span>
                 <div className="meta-stage-line" />
               </div>

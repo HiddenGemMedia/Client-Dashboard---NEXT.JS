@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import type { ApexOptions } from "apexcharts";
 import type { RoiViewModel } from "@/lib/roi-metrics";
 import { ApexChart } from "@/components/charts/ApexChart";
+import { useSimplifiedLayout } from "@/hooks/useSimplifiedLayout";
 import { buildResponsiveXAxisLabelOptions, roiSharedAxis, sharedChart } from "@/lib/chart-utils";
 import { formatCurrency, formatCurrencyCompact } from "@/lib/format";
 
@@ -15,6 +16,7 @@ const AXIS_TEXT = "#64748B";
 const MUTED_TEXT = "#94A3B8";
 
 export function RevenueBookingsSection({ model }: { model: RoiViewModel }) {
+  const simplified = useSimplifiedLayout();
   const { revenueBookings: rb } = model;
 
   const revenueOptions: ApexOptions = useMemo(
@@ -234,47 +236,49 @@ export function RevenueBookingsSection({ model }: { model: RoiViewModel }) {
           </div>
         </div>
       </div>
-      <div className="pp-grid pp-grid-2 pp-block-gap">
-        <div className="pp-glass pp-chart-tile">
-          <div className="pp-chart-head">
-            <div className="pp-chart-title">Total vs Direct Revenue</div>
-            <div className="pp-chart-sub" id="revenueChartSub">
-              {rb.revenueChartSub}
+      {!simplified && (
+        <div className="pp-grid pp-grid-2 pp-block-gap">
+          <div className="pp-glass pp-chart-tile">
+            <div className="pp-chart-head">
+              <div className="pp-chart-title">Total vs Direct Revenue</div>
+              <div className="pp-chart-sub" id="revenueChartSub">
+                {rb.revenueChartSub}
+              </div>
+            </div>
+            <div className="pp-chart-body">
+              <div id="revenueChart" role="img" aria-label="Revenue chart">
+                <ApexChart
+                  options={revenueOptions}
+                  series={[
+                    { name: "Total Revenue", data: rb.revenueChart.totalSeries },
+                    { name: "Direct Revenue", data: rb.revenueChart.directSeries },
+                  ]}
+                  type="area"
+                  height={190}
+                />
+              </div>
             </div>
           </div>
-          <div className="pp-chart-body">
-            <div id="revenueChart" role="img" aria-label="Revenue chart">
-              <ApexChart
-                options={revenueOptions}
-                series={[
-                  { name: "Total Revenue", data: rb.revenueChart.totalSeries },
-                  { name: "Direct Revenue", data: rb.revenueChart.directSeries },
-                ]}
-                type="area"
-                height={190}
-              />
+          <div className="pp-glass pp-chart-tile">
+            <div className="pp-chart-head">
+              <div className="pp-chart-title">Direct Booking Split</div>
+              <div className="pp-chart-sub" id="bookingSplitChartSub">
+                {rb.bookingSplitChartSub}
+              </div>
+            </div>
+            <div className="pp-chart-body">
+              <div id="bookingSplitChart" role="img" aria-label="Direct booking split chart">
+                <ApexChart
+                  options={bookingSplitOptions}
+                  series={[{ name: "Direct Split", data: rb.bookingSplitChart.series }]}
+                  type="bar"
+                  height={190}
+                />
+              </div>
             </div>
           </div>
         </div>
-        <div className="pp-glass pp-chart-tile">
-          <div className="pp-chart-head">
-            <div className="pp-chart-title">Direct Booking Split</div>
-            <div className="pp-chart-sub" id="bookingSplitChartSub">
-              {rb.bookingSplitChartSub}
-            </div>
-          </div>
-          <div className="pp-chart-body">
-            <div id="bookingSplitChart" role="img" aria-label="Direct booking split chart">
-              <ApexChart
-                options={bookingSplitOptions}
-                series={[{ name: "Direct Split", data: rb.bookingSplitChart.series }]}
-                type="bar"
-                height={190}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
       <div className="pp-glass pp-chart-tile pp-block-gap">
         <div className="pp-chart-head">
           <div className="pp-chart-title">Monthly Revenue Performance</div>

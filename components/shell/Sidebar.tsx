@@ -8,6 +8,7 @@ import { isPricingToolClient } from "@/lib/client-slug";
 import { formatMonthKey } from "@/lib/format";
 import { getAllMonthKeys } from "@/lib/roi-model";
 import { MonthPicker } from "@/components/shared/MonthPicker";
+import { useSimplifiedLayout } from "@/hooks/useSimplifiedLayout";
 
 export function Sidebar({ mobileOpen, onNavigate }: { mobileOpen: boolean; onNavigate: () => void }) {
   const state = useDashboardState();
@@ -30,7 +31,8 @@ export function Sidebar({ mobileOpen, onNavigate }: { mobileOpen: boolean; onNav
   // set on click (which link the user chose), not derived from scroll
   // position — there is no scroll-spy in the original.
   const [activeRoiHash, setActiveRoiHash] = useState("#executive-summary");
-  const [activeMetaHash, setActiveMetaHash] = useState("#meta-portfolio");
+  const simplified = useSimplifiedLayout();
+  const [activeMetaHash, setActiveMetaHash] = useState(simplified ? "#meta-campaigns" : "#meta-portfolio");
 
   const showPricingTab = isPricingToolClient(state.selectedClientSlug);
   const dashboardTitle =
@@ -182,7 +184,9 @@ export function Sidebar({ mobileOpen, onNavigate }: { mobileOpen: boolean; onNav
           { hash: "#meta-portfolio", label: "Portfolio Snapshot" },
           { hash: "#meta-campaigns", label: "Campaign Breakdown" },
           { hash: "#meta-insights", label: "Performance Insights" },
-        ].map(({ hash, label }) => (
+        ]
+          .filter(({ hash }) => !(simplified && hash === "#meta-portfolio"))
+          .map(({ hash, label }) => (
           <a
             key={hash}
             href={hash}
