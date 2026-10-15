@@ -464,6 +464,15 @@
       text-align: center;
     }
 
+    /* Simplified (admin-only) channel cards: numbers and notes one point larger. */
+    .meta-channel-stats-lg .meta-channel-stat-value {
+      font-size: clamp(16px, 1.3vw, 17px);
+    }
+
+    .meta-channel-stats-lg .meta-channel-stat-note {
+      font-size: 11px;
+    }
+
     .meta-comparison-toggle-button {
       display: inline-flex;
       align-items: center;

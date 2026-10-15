@@ -53,7 +53,7 @@ export function MetaCampaignHighlightCard({ card }: { card: MetaHighlightCardMod
         </button>
       </div>
       {simplified ? (
-        <div className="meta-channel-stats">
+        <div className="meta-channel-stats meta-channel-stats-lg">
           <MetaChannelStat label="Spend" value={formatCurrency(current.spend, 0)} note={current.monthLabel} />
           <MetaChannelStat label="Revenue" value={formatCurrency(current.revenue, 0)} note={`Attributed, ${current.monthLabel}`} />
           <MetaChannelStat label="ROAS" value={formatMultiple(current.roas)} note={current.monthLabel} />
