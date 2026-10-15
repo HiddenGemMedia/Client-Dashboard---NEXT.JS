@@ -147,7 +147,7 @@ function DiscoveryTableRows({ rows }: { rows: MetaRow[] }) {
 
 /** Ported from renderMetaCampaignSection() — retargeting / discovery / generic variants. */
 export function MetaCampaignSection({ section }: { section: MetaCampaignSectionModel }) {
-  const { campaignType, chartKey, isRetargeting, isDiscovery, rows, rangeLabel, retargetingSummary, discoverySummary, retargetingTakeaways, discoveryTakeaways, volumeMetric, efficiencyMetric } = section;
+  const { campaignType, chartKey, isRetargeting, isDiscovery, rows, rangeLabel, retargetingSummary, discoverySummary, retargetingTakeaways, discoveryTakeaways, volumeMetric, efficiencyMetric, discoveryCurrent } = section;
   const simplified = useSimplifiedLayout();
 
   const campaignMonthLabels = useMemo(() => rows.map((row) => row.shortYearLabel), [rows]);
@@ -431,16 +431,24 @@ export function MetaCampaignSection({ section }: { section: MetaCampaignSectionM
 
       {isDiscovery && discoverySummary && (
         <div className={simplified ? "meta-retarget-feature-grid" : "meta-discovery-summary-grid"} style={{ marginTop: 18 }}>
-          <div className="meta-retarget-kpi-stack" style={simplified ? undefined : { display: "contents" }}>
-            <MetaCompactSummaryCard
-              label="Total impressions"
-              value={formatCompactNumber(discoverySummary.totalImpressions)}
-              pillText={formatSignedPercentLabel(discoverySummary.impressionsDelta)}
-              tone={discoverySummary.impressionsDelta >= 0 ? "good" : "warn"}
-            />
-            <MetaCompactSummaryCard label="Total followers" value={formatNumber(discoverySummary.totalFollowers)} pillText={rangeLabel} tone="neutral" />
-            <MetaCompactSummaryCard label="Total page visits" value={formatCompactNumber(discoverySummary.totalPageVisits)} pillText={rangeLabel} tone="neutral" />
-          </div>
+          {simplified && discoveryCurrent ? (
+            <div className="meta-retarget-kpi-stack">
+              <MetaCompactSummaryCard label="Impressions" value={formatCompactNumber(discoveryCurrent.impressions)} pillText={discoveryCurrent.monthLabel} tone="neutral" />
+              <MetaCompactSummaryCard label="Followers" value={formatNumber(discoveryCurrent.followers)} pillText={discoveryCurrent.monthLabel} tone="neutral" />
+              <MetaCompactSummaryCard label="Page visits" value={formatCompactNumber(discoveryCurrent.pageVisits)} pillText={discoveryCurrent.monthLabel} tone="neutral" />
+            </div>
+          ) : (
+            <div className="meta-retarget-kpi-stack" style={simplified ? undefined : { display: "contents" }}>
+              <MetaCompactSummaryCard
+                label="Total impressions"
+                value={formatCompactNumber(discoverySummary.totalImpressions)}
+                pillText={formatSignedPercentLabel(discoverySummary.impressionsDelta)}
+                tone={discoverySummary.impressionsDelta >= 0 ? "good" : "warn"}
+              />
+              <MetaCompactSummaryCard label="Total followers" value={formatNumber(discoverySummary.totalFollowers)} pillText={rangeLabel} tone="neutral" />
+              <MetaCompactSummaryCard label="Total page visits" value={formatCompactNumber(discoverySummary.totalPageVisits)} pillText={rangeLabel} tone="neutral" />
+            </div>
+          )}
           {simplified && <MetaTakeawayCard items={discoveryTakeaways} periodLabel={rangeLabel} />}
         </div>
       )}

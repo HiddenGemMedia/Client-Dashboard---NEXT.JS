@@ -362,6 +362,17 @@ export function summarizeDiscoveryRows(rows: MetaRow[]) {
   };
 }
 
+/** Discovery's impressions, followers and page visits for a single month. */
+function summarizeDiscoveryMonth(rows: MetaRow[], monthKey: string, monthLabel: string) {
+  const monthRows = rows.filter((row) => row.key === monthKey);
+  return {
+    monthLabel,
+    impressions: sumMetric(monthRows, "impressions"),
+    followers: sumMetric(monthRows, "leadsFollowers"),
+    pageVisits: sumMetric(monthRows, "profileVisits"),
+  };
+}
+
 /** Ported verbatim from formatMetaMonthRange(). Accepts anything keyed like a Meta row or month. */
 export function formatMetaMonthRange(rows: { key: string }[]): string {
   if (!rows.length) return "Selected range";
@@ -463,6 +474,8 @@ export type MetaCampaignSectionModel = {
   rangeLabel: string;
   retargetingSummary: ReturnType<typeof summarizeRetargetingRows> | null;
   discoverySummary: ReturnType<typeof summarizeDiscoveryRows> | null;
+  /** Discovery's figures for the report's current month only (the simplified layout's summary cards). */
+  discoveryCurrent: { monthLabel: string; impressions: number; followers: number; pageVisits: number } | null;
   retargetingTakeaways: string[];
   discoveryTakeaways: string[];
   volumeMetric: { key: keyof MetaRow; label: string };
@@ -849,6 +862,7 @@ export function buildMetaViewModel(
         rangeLabel,
         retargetingSummary: isRetargeting ? summarizeRetargetingRows(rows) : null,
         discoverySummary: isDiscovery ? summarizeDiscoveryRows(rows) : null,
+        discoveryCurrent: isDiscovery ? summarizeDiscoveryMonth(rows, currentMonth ? currentMonth.key : selectedMonth, currentMonthLabel) : null,
         retargetingTakeaways,
         discoveryTakeaways,
         volumeMetric: chooseVolumeMetric(rows),

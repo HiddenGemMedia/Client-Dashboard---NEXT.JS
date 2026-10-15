@@ -29,7 +29,8 @@ export function WebsiteTrafficSection({ model }: { model: RoiViewModel }) {
     [wt.chart.shortLabels]
   );
 
-  // Website Sessions, Peak and Total Ad Spend cards, shared by both layouts.
+  // Website Sessions, Peak and Total Ad Spend cards, shared by both layouts
+  // (the simplified layout shows the current month only, so no Peak card).
   const statCards = (
     <>
       <div className="pp-glass pp-stat">
@@ -48,17 +49,19 @@ export function WebsiteTrafficSection({ model }: { model: RoiViewModel }) {
           </span>
         </div>
       </div>
-      <div className="pp-glass pp-stat">
-        <div className="pp-s-label" id="websitePeakLabel">
-          {wt.websitePeakLabel}
+      {!simplified && (
+        <div className="pp-glass pp-stat">
+          <div className="pp-s-label" id="websitePeakLabel">
+            {wt.websitePeakLabel}
+          </div>
+          <div className="pp-s-value" id="websitePeakValue">
+            {wt.websitePeakValue}
+          </div>
+          <div className="pp-s-meta">
+            <span className="pp-tag pp-tag-up">Highest month</span>
+          </div>
         </div>
-        <div className="pp-s-value" id="websitePeakValue">
-          {wt.websitePeakValue}
-        </div>
-        <div className="pp-s-meta">
-          <span className="pp-tag pp-tag-up">Highest month</span>
-        </div>
-      </div>
+      )}
       <div className="pp-glass pp-stat">
         <div className="pp-s-label">Total Ad Spend</div>
         <div className="pp-s-value" id="websiteTotalAdSpend">
@@ -82,7 +85,7 @@ export function WebsiteTrafficSection({ model }: { model: RoiViewModel }) {
         <div className="pp-stage-accent" style={{ background: "var(--pp-teal)" }} />
       </div>
       {simplified ? (
-        <div className="pp-grid pp-grid-3">{statCards}</div>
+        <div className="pp-grid pp-grid-2">{statCards}</div>
       ) : (
         <div className="pp-grid pp-grid-12">
           <div className="pp-side-stack">{statCards}</div>
