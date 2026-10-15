@@ -20,8 +20,8 @@ export function MetaView() {
   const client = availableClients.find((c) => c.slug === selectedClientSlug) || null;
 
   const model = useMemo(
-    () => buildMetaViewModel(workbook, metaAnalysis, client?.name || "", selectedClientSlug, selectedMonth, metaExpandedCampaigns, isAdmin),
-    [workbook, metaAnalysis, client?.name, selectedClientSlug, selectedMonth, metaExpandedCampaigns, isAdmin]
+    () => buildMetaViewModel(workbook, metaAnalysis, client?.name || "", selectedClientSlug, selectedMonth, metaExpandedCampaigns, isAdmin, simplified),
+    [workbook, metaAnalysis, client?.name, selectedClientSlug, selectedMonth, metaExpandedCampaigns, isAdmin, simplified]
   );
 
   if (!model.hasData) {

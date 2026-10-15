@@ -578,7 +578,9 @@ export function buildRoiViewModel(
   clientName: string,
   clientSlug: string,
   selectedMonth: string,
-  isAdmin: boolean
+  isAdmin: boolean,
+  /** Show the "current:YYYY-MM" takeaways when they exist (simplified layout). */
+  currentMonthTakeaways = false
 ): RoiViewModel {
   if (!isAdmin && selectedMonth >= ROI_CLIENT_HOLD_FROM_MONTH_KEY) {
     return buildEmptyViewModel(clientName, selectedMonth, true);
@@ -627,7 +629,7 @@ export function buildRoiViewModel(
       : "Revenue data is loaded from the workbook.",
   ];
 
-  const analysisEntry = getRoiAnalysisEntry(roiAnalysis, canonicalSlug, selectedMonth);
+  const analysisEntry = getRoiAnalysisEntry(roiAnalysis, canonicalSlug, selectedMonth, currentMonthTakeaways);
   const overviewItems =
     analysisEntry && Array.isArray(analysisEntry.key_takeaways) && analysisEntry.key_takeaways.length
       ? analysisEntry.key_takeaways
@@ -903,17 +905,21 @@ export function buildRoiViewModel(
 function findBestAnalysisEntry<T>(store: Record<string, T> | undefined, selectedMonth: string): T | null {
   if (!store) return null;
   if (store[selectedMonth]) return store[selectedMonth];
+  // Only plain YYYY-MM keys take part in the fallback; "current:YYYY-MM"
+  // admin copies (see CURRENT_MONTH_TAKEAWAYS_PREFIX) are looked up explicitly.
   const keys = Object.keys(store)
-    .filter((k) => k <= selectedMonth)
+    .filter((k) => /^\d{4}-\d{2}$/.test(k) && k <= selectedMonth)
     .sort();
   if (keys.length) return store[keys[keys.length - 1]];
   return null;
 }
 
-function getRoiAnalysisEntry(roiAnalysis: RoiAnalysis, clientSlug: string, selectedMonth: string) {
+function getRoiAnalysisEntry(roiAnalysis: RoiAnalysis, clientSlug: string, selectedMonth: string, preferCurrentMonth = false) {
   const clientData = roiAnalysis[clientSlug];
   if (!clientData || !clientData.roi) return null;
-  return findBestAnalysisEntry(clientData.roi, selectedMonth);
+  // "current:YYYY-MM" = takeaways about the report month alone (see CURRENT_MONTH_TAKEAWAYS_PREFIX in lib/meta-model.ts).
+  const current = preferCurrentMonth ? clientData.roi[`current:${selectedMonth}`] : undefined;
+  return current || findBestAnalysisEntry(clientData.roi, selectedMonth);
 }
 
 // Re-exported for convenience so section components can build ApexCharts

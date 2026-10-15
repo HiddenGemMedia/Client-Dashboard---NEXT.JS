@@ -444,21 +444,32 @@ export function buildDiscoveryTrafficTakeaway(rows: MetaRow[]): string {
 function findBestAnalysisEntry<T>(store: Record<string, T> | undefined, selectedMonth: string): T | null {
   if (!store) return null;
   if (store[selectedMonth]) return store[selectedMonth];
+  // Only plain YYYY-MM keys take part in the fallback; "current:YYYY-MM"
+  // admin copies (see CURRENT_MONTH_TAKEAWAYS_PREFIX) are looked up explicitly.
   const keys = Object.keys(store)
-    .filter((k) => k <= selectedMonth)
+    .filter((k) => /^\d{4}-\d{2}$/.test(k) && k <= selectedMonth)
     .sort();
   if (keys.length) return store[keys[keys.length - 1]];
   return null;
 }
 
+/**
+ * Period-key prefix for takeaways written about the report month alone
+ * (e.g. "current:2026-09"). The simplified layout shows these when they
+ * exist and falls back to the regular 3-month takeaways otherwise.
+ */
+export const CURRENT_MONTH_TAKEAWAYS_PREFIX = "current:";
+
 export function getMetaAnalysisEntry(
   metaAnalysis: MetaAnalysis,
   clientSlug: string,
-  selectedMonth: string
+  selectedMonth: string,
+  preferCurrentMonth = false
 ): MetaAnalysisPeriod | null {
   const clientData = metaAnalysis[clientSlug];
   if (!clientData || !clientData.meta) return null;
-  return findBestAnalysisEntry(clientData.meta, selectedMonth);
+  const current = preferCurrentMonth ? clientData.meta[CURRENT_MONTH_TAKEAWAYS_PREFIX + selectedMonth] : undefined;
+  return current || findBestAnalysisEntry(clientData.meta, selectedMonth);
 }
 
 // ---------------------------------------------------------------------------
@@ -654,7 +665,9 @@ export function buildMetaViewModel(
   clientSlug: string,
   selectedMonth: string,
   expandedCampaigns: Record<string, boolean>,
-  isAdmin: boolean
+  isAdmin: boolean,
+  /** Show the "current:YYYY-MM" takeaways when they exist (simplified layout). */
+  currentMonthTakeaways = false
 ): MetaViewModel {
   const canonicalSlug = canonicalizeClientSlug(clientSlug);
 
@@ -835,7 +848,7 @@ export function buildMetaViewModel(
 
   // --- Highlight cards + campaign sections ---
   const visibleCampaignTypes = visibleMetaCampaignTypes(meta);
-  const analysisEntry = getMetaAnalysisEntry(metaAnalysis, canonicalSlug, selectedMonth);
+  const analysisEntry = getMetaAnalysisEntry(metaAnalysis, canonicalSlug, selectedMonth, currentMonthTakeaways);
 
   const highlightCards: MetaHighlightCardModel[] = visibleCampaignTypes.map((campaignType) => {
     const rows = meta.rowsByCampaign[campaignType] || [];

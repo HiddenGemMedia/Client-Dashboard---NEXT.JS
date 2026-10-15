@@ -11,16 +11,18 @@ import { AudienceSection } from "./AudienceSection";
 import { LeadGenerationSection } from "./LeadGenerationSection";
 import { WebsiteTrafficSection } from "./WebsiteTrafficSection";
 import { RevenueBookingsSection } from "./RevenueBookingsSection";
+import { useSimplifiedLayout } from "@/hooks/useSimplifiedLayout";
 
 export function RoiView() {
   const { isAdmin, availableClients, selectedClientSlug, selectedMonth } = useDashboardState();
   const { workbook, roiAnalysis } = useDashboardData();
+  const simplified = useSimplifiedLayout();
 
   const client = availableClients.find((c) => c.slug === selectedClientSlug) || null;
 
   const model = useMemo(
-    () => buildRoiViewModel(workbook, roiAnalysis, client?.name || "", selectedClientSlug, selectedMonth, isAdmin),
-    [workbook, roiAnalysis, client?.name, selectedClientSlug, selectedMonth, isAdmin]
+    () => buildRoiViewModel(workbook, roiAnalysis, client?.name || "", selectedClientSlug, selectedMonth, isAdmin, simplified),
+    [workbook, roiAnalysis, client?.name, selectedClientSlug, selectedMonth, isAdmin, simplified]
   );
 
   if (model.isComingSoon) {
