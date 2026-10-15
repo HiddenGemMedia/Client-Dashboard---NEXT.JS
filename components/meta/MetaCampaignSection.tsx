@@ -147,8 +147,9 @@ function DiscoveryTableRows({ rows }: { rows: MetaRow[] }) {
 
 /** Ported from renderMetaCampaignSection() — retargeting / discovery / generic variants. */
 export function MetaCampaignSection({ section }: { section: MetaCampaignSectionModel }) {
-  const { campaignType, chartKey, isRetargeting, isDiscovery, rows, rangeLabel, retargetingSummary, discoverySummary, retargetingTakeaways, discoveryTakeaways, volumeMetric, efficiencyMetric, discoveryCurrent } = section;
+  const { campaignType, chartKey, isRetargeting, isDiscovery, rows, rangeLabel, retargetingSummary, discoverySummary, retargetingTakeaways, discoveryTakeaways, volumeMetric, efficiencyMetric, discoveryCurrent, currentMonthLabel } = section;
   const simplified = useSimplifiedLayout();
+  const takeawayLabel = simplified ? currentMonthLabel : rangeLabel;
 
   const campaignMonthLabels = useMemo(() => rows.map((row) => row.shortYearLabel), [rows]);
   const performanceValues = useMemo(() => rows.map((row) => primaryRoas(row)), [rows]);
@@ -398,7 +399,7 @@ export function MetaCampaignSection({ section }: { section: MetaCampaignSectionM
             <MetaAverageStatCard label="Avg ROAS" value={formatMultiple(retargetingSummary.avgRoas)} note={retargetingSummary.avgPeriodLabel} />
           </div>
           {simplified ? (
-            <MetaTakeawayCard items={retargetingTakeaways} periodLabel={rangeLabel} />
+            <MetaTakeawayCard items={retargetingTakeaways} periodLabel={takeawayLabel} />
           ) : (
             <MetaChartCard title="Spend vs attributed revenue" subtitle="Total monthly ad spend vs total revenue generated" id={`meta-${chartKey}-spend-revenue`}>
               <ApexChart
@@ -425,7 +426,7 @@ export function MetaCampaignSection({ section }: { section: MetaCampaignSectionM
               height={215}
             />
           </MetaChartCard>
-          <MetaTakeawayCard items={retargetingTakeaways} periodLabel={rangeLabel} />
+          <MetaTakeawayCard items={retargetingTakeaways} periodLabel={takeawayLabel} />
         </div>
       )}
 
@@ -449,7 +450,7 @@ export function MetaCampaignSection({ section }: { section: MetaCampaignSectionM
               <MetaCompactSummaryCard label="Total page visits" value={formatCompactNumber(discoverySummary.totalPageVisits)} pillText={rangeLabel} tone="neutral" />
             </div>
           )}
-          {simplified && <MetaTakeawayCard items={discoveryTakeaways} periodLabel={rangeLabel} />}
+          {simplified && <MetaTakeawayCard items={discoveryTakeaways} periodLabel={takeawayLabel} />}
         </div>
       )}
 
@@ -488,7 +489,7 @@ export function MetaCampaignSection({ section }: { section: MetaCampaignSectionM
                 height={290}
               />
             </MetaChartCard>
-            <MetaTakeawayCard items={discoveryTakeaways} periodLabel={rangeLabel} />
+            <MetaTakeawayCard items={discoveryTakeaways} periodLabel={takeawayLabel} />
           </div>
         </>
       )}

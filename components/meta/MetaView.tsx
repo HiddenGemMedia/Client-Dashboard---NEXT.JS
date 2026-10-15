@@ -73,12 +73,16 @@ export function MetaView() {
         <div>
           <div className="meta-title">{model.clientName}</div>
           <div className="meta-legend">
-            {model.legendMonths.map((month) => (
-              <div className="meta-legend-item" key={month.label}>
-                <span className="meta-legend-dot" style={{ background: month.color }} />
-                {month.label}
-              </div>
-            ))}
+            {simplified ? (
+              <div className="meta-legend-item">{model.selectedMonthLabel}</div>
+            ) : (
+              model.legendMonths.map((month) => (
+                <div className="meta-legend-item" key={month.label}>
+                  <span className="meta-legend-dot" style={{ background: month.color }} />
+                  {month.label}
+                </div>
+              ))
+            )}
           </div>
           <div className="meta-subtitle">Meta Ads Report</div>
           <div className="meta-disclaimer">

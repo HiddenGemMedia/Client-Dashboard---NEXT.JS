@@ -476,6 +476,8 @@ export type MetaCampaignSectionModel = {
   discoverySummary: ReturnType<typeof summarizeDiscoveryRows> | null;
   /** Discovery's figures for the report's current month only (the simplified layout's summary cards). */
   discoveryCurrent: { monthLabel: string; impressions: number; followers: number; pageVisits: number } | null;
+  /** The report's current month, e.g. "September 2026" (simplified layout labels). */
+  currentMonthLabel: string;
   retargetingTakeaways: string[];
   discoveryTakeaways: string[];
   volumeMetric: { key: keyof MetaRow; label: string };
@@ -862,6 +864,7 @@ export function buildMetaViewModel(
         rangeLabel,
         retargetingSummary: isRetargeting ? summarizeRetargetingRows(rows) : null,
         discoverySummary: isDiscovery ? summarizeDiscoveryRows(rows) : null,
+        currentMonthLabel,
         discoveryCurrent: isDiscovery ? summarizeDiscoveryMonth(rows, currentMonth ? currentMonth.key : selectedMonth, currentMonthLabel) : null,
         retargetingTakeaways,
         discoveryTakeaways,

@@ -24,8 +24,11 @@ export function MetaInsights({ model }: { model: MetaViewModel }) {
         <div className="meta-takeaway-card">
           <div className="meta-takeaway-title">
             Key Takeaways
-            {insights.periodLabel && (
-              <span style={{ fontSize: "0.6em", fontWeight: 500, opacity: 0.5, whiteSpace: "nowrap" }}> ({insights.periodLabel})</span>
+            {(simplified ? model.selectedMonthLabel : insights.periodLabel) && (
+              <span style={{ fontSize: "0.6em", fontWeight: 500, opacity: 0.5, whiteSpace: "nowrap" }}>
+                {" "}
+                ({simplified ? model.selectedMonthLabel : insights.periodLabel})
+              </span>
             )}
           </div>
           <ul className="meta-takeaway-list">

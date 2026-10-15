@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { RoiViewModel } from "@/lib/roi-metrics";
 import { useDashboardState } from "@/hooks/useDashboardState";
+import { useSimplifiedLayout } from "@/hooks/useSimplifiedLayout";
 
 // Header disclaimer's tooltip: the general explanation of why booking date
 // is used at all.
@@ -79,7 +80,8 @@ function StatInfoTooltip({ children }: { children: React.ReactNode }) {
 }
 
 export function ExecutiveSummary({ model }: { model: RoiViewModel }) {
-  const { executiveSummary: s, clientName, dateRangeLabel } = model;
+  const { executiveSummary: s, clientName, dateRangeLabel, latestMonth } = model;
+  const simplified = useSimplifiedLayout();
   const { isAdmin, availableClients, selectedClientSlug } = useDashboardState();
   // Admin-only, matching where else access codes are shown (Sidebar's client
   // dropdown, Super Admin directory): clients don't need to see their own
@@ -99,7 +101,7 @@ export function ExecutiveSummary({ model }: { model: RoiViewModel }) {
           )}
         </h1>
         <div className="pp-eyebrow" id="dateRangeLabel">
-          {dateRangeLabel}
+          {simplified && latestMonth ? latestMonth.label : dateRangeLabel}
         </div>
         <div className="pp-subtitle">Performance Overview</div>
         <div className="pp-disclaimer">

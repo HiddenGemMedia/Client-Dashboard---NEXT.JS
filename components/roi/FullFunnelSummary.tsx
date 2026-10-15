@@ -1,7 +1,9 @@
 import type { RoiViewModel } from "@/lib/roi-metrics";
+import { useSimplifiedLayout } from "@/hooks/useSimplifiedLayout";
 
 export function FullFunnelSummary({ model }: { model: RoiViewModel }) {
   const { funnel, takeawayPeriodLabel, executiveSummary, latestMonth } = model;
+  const simplified = useSimplifiedLayout();
   const monthLabel = latestMonth?.label || "";
 
   return (
@@ -104,7 +106,7 @@ export function FullFunnelSummary({ model }: { model: RoiViewModel }) {
           <h2>
             Key Takeaways{" "}
             <span id="takeawayPeriodLabel" style={{ fontSize: "0.6em", fontWeight: 500, opacity: 0.5, whiteSpace: "nowrap" }}>
-              {takeawayPeriodLabel}
+              {simplified && latestMonth ? `(${latestMonth.label})` : takeawayPeriodLabel}
             </span>
           </h2>
           <ul id="summaryOverviewList" className="pp-insight-list">
