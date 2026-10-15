@@ -147,7 +147,7 @@ function DiscoveryTableRows({ rows }: { rows: MetaRow[] }) {
 
 /** Ported from renderMetaCampaignSection() — retargeting / discovery / generic variants. */
 export function MetaCampaignSection({ section }: { section: MetaCampaignSectionModel }) {
-  const { campaignType, chartKey, isRetargeting, isDiscovery, rows, rangeLabel, retargetingSummary, discoverySummary, retargetingTakeaways, discoveryTakeaways, volumeMetric, efficiencyMetric, discoveryCurrent, currentMonthLabel } = section;
+  const { campaignType, chartKey, isRetargeting, isDiscovery, rows, rangeLabel, retargetingSummary, discoverySummary, retargetingTakeaways, discoveryTakeaways, volumeMetric, efficiencyMetric, discoveryCurrent, retargetingCurrent, currentMonthLabel } = section;
   const simplified = useSimplifiedLayout();
   const takeawayLabel = simplified ? currentMonthLabel : rangeLabel;
 
@@ -393,11 +393,19 @@ export function MetaCampaignSection({ section }: { section: MetaCampaignSectionM
 
       {isRetargeting && retargetingSummary && (
         <div className="meta-retarget-feature-grid" style={{ marginTop: 22 }}>
-          <div className="meta-retarget-kpi-stack">
-            <MetaAverageStatCard label="Cost/booking average" value={formatCurrency(retargetingSummary.avgCostPerBooking)} note={retargetingSummary.avgPeriodLabel} />
-            <MetaAverageStatCard label="Avg booking value" value={formatCurrency(retargetingSummary.avgBookingValue)} note={retargetingSummary.avgPeriodLabel} />
-            <MetaAverageStatCard label="Avg ROAS" value={formatMultiple(retargetingSummary.avgRoas)} note={retargetingSummary.avgPeriodLabel} />
-          </div>
+          {simplified && retargetingCurrent ? (
+            <div className="meta-retarget-kpi-stack">
+              <MetaAverageStatCard label="Cost/booking" value={retargetingCurrent.costPerBooking != null ? formatCurrency(retargetingCurrent.costPerBooking) : "—"} note={retargetingCurrent.monthLabel} />
+              <MetaAverageStatCard label="Booking value" value={formatCurrency(retargetingCurrent.avgBookingValue)} note={retargetingCurrent.monthLabel} />
+              <MetaAverageStatCard label="ROAS" value={formatMultiple(retargetingCurrent.roas)} note={retargetingCurrent.monthLabel} />
+            </div>
+          ) : (
+            <div className="meta-retarget-kpi-stack">
+              <MetaAverageStatCard label="Cost/booking average" value={formatCurrency(retargetingSummary.avgCostPerBooking)} note={retargetingSummary.avgPeriodLabel} />
+              <MetaAverageStatCard label="Avg booking value" value={formatCurrency(retargetingSummary.avgBookingValue)} note={retargetingSummary.avgPeriodLabel} />
+              <MetaAverageStatCard label="Avg ROAS" value={formatMultiple(retargetingSummary.avgRoas)} note={retargetingSummary.avgPeriodLabel} />
+            </div>
+          )}
           {simplified ? (
             <MetaTakeawayCard items={retargetingTakeaways} periodLabel={takeawayLabel} />
           ) : (

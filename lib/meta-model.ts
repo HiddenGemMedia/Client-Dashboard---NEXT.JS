@@ -362,6 +362,17 @@ export function summarizeDiscoveryRows(rows: MetaRow[]) {
   };
 }
 
+/** Retargeting's cost per booking, average booking value and ROAS for a single month. */
+function summarizeRetargetingMonth(rows: MetaRow[], monthKey: string, monthLabel: string) {
+  const row = rows.find((r) => r.key === monthKey) || null;
+  return {
+    monthLabel,
+    costPerBooking: row && numeric(row.costPerBooking) > 0 ? numeric(row.costPerBooking) : null,
+    avgBookingValue: row ? numeric(row.avgBookingValue) : 0,
+    roas: row ? primaryRoas(row) : 0,
+  };
+}
+
 /** Discovery's impressions, followers and page visits for a single month. */
 function summarizeDiscoveryMonth(rows: MetaRow[], monthKey: string, monthLabel: string) {
   const monthRows = rows.filter((row) => row.key === monthKey);
@@ -476,6 +487,8 @@ export type MetaCampaignSectionModel = {
   discoverySummary: ReturnType<typeof summarizeDiscoveryRows> | null;
   /** Discovery's figures for the report's current month only (the simplified layout's summary cards). */
   discoveryCurrent: { monthLabel: string; impressions: number; followers: number; pageVisits: number } | null;
+  /** Retargeting's cost per booking, booking value and ROAS for the report's current month only. */
+  retargetingCurrent: { monthLabel: string; costPerBooking: number | null; avgBookingValue: number; roas: number } | null;
   /** The report's current month, e.g. "September 2026" (simplified layout labels). */
   currentMonthLabel: string;
   retargetingTakeaways: string[];
@@ -865,6 +878,7 @@ export function buildMetaViewModel(
         retargetingSummary: isRetargeting ? summarizeRetargetingRows(rows) : null,
         discoverySummary: isDiscovery ? summarizeDiscoveryRows(rows) : null,
         currentMonthLabel,
+        retargetingCurrent: isRetargeting ? summarizeRetargetingMonth(rows, currentMonth ? currentMonth.key : selectedMonth, currentMonthLabel) : null,
         discoveryCurrent: isDiscovery ? summarizeDiscoveryMonth(rows, currentMonth ? currentMonth.key : selectedMonth, currentMonthLabel) : null,
         retargetingTakeaways,
         discoveryTakeaways,
