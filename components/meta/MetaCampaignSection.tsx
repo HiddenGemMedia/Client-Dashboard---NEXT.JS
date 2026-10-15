@@ -391,13 +391,15 @@ export function MetaCampaignSection({ section }: { section: MetaCampaignSectionM
       </div>
 
       {isRetargeting && retargetingSummary && (
-        <div className={simplified ? "meta-discovery-summary-grid" : "meta-retarget-feature-grid"} style={{ marginTop: 22 }}>
-          <div className="meta-retarget-kpi-stack" style={simplified ? { display: "contents" } : undefined}>
+        <div className="meta-retarget-feature-grid" style={{ marginTop: 22 }}>
+          <div className="meta-retarget-kpi-stack">
             <MetaAverageStatCard label="Cost/booking average" value={formatCurrency(retargetingSummary.avgCostPerBooking)} note={retargetingSummary.avgPeriodLabel} />
             <MetaAverageStatCard label="Avg booking value" value={formatCurrency(retargetingSummary.avgBookingValue)} note={retargetingSummary.avgPeriodLabel} />
             <MetaAverageStatCard label="Avg ROAS" value={formatMultiple(retargetingSummary.avgRoas)} note={retargetingSummary.avgPeriodLabel} />
           </div>
-          {!simplified && (
+          {simplified ? (
+            <MetaTakeawayCard items={retargetingTakeaways} periodLabel={rangeLabel} />
+          ) : (
             <MetaChartCard title="Spend vs attributed revenue" subtitle="Total monthly ad spend vs total revenue generated" id={`meta-${chartKey}-spend-revenue`}>
               <ApexChart
                 options={spendRevenueOptions}
@@ -410,12 +412,6 @@ export function MetaCampaignSection({ section }: { section: MetaCampaignSectionM
               />
             </MetaChartCard>
           )}
-        </div>
-      )}
-
-      {isRetargeting && simplified && (
-        <div style={{ marginTop: 22 }}>
-          <MetaTakeawayCard items={retargetingTakeaways} periodLabel={rangeLabel} />
         </div>
       )}
 
@@ -434,21 +430,18 @@ export function MetaCampaignSection({ section }: { section: MetaCampaignSectionM
       )}
 
       {isDiscovery && discoverySummary && (
-        <div className="meta-discovery-summary-grid" style={{ marginTop: 18 }}>
-          <MetaCompactSummaryCard
-            label="Total impressions"
-            value={formatCompactNumber(discoverySummary.totalImpressions)}
-            pillText={formatSignedPercentLabel(discoverySummary.impressionsDelta)}
-            tone={discoverySummary.impressionsDelta >= 0 ? "good" : "warn"}
-          />
-          <MetaCompactSummaryCard label="Total followers" value={formatNumber(discoverySummary.totalFollowers)} pillText={rangeLabel} tone="neutral" />
-          <MetaCompactSummaryCard label="Total page visits" value={formatCompactNumber(discoverySummary.totalPageVisits)} pillText={rangeLabel} tone="neutral" />
-        </div>
-      )}
-
-      {isDiscovery && simplified && (
-        <div style={{ marginTop: 22 }}>
-          <MetaTakeawayCard items={discoveryTakeaways} periodLabel={rangeLabel} />
+        <div className={simplified ? "meta-retarget-feature-grid" : "meta-discovery-summary-grid"} style={{ marginTop: 18 }}>
+          <div className="meta-retarget-kpi-stack" style={simplified ? undefined : { display: "contents" }}>
+            <MetaCompactSummaryCard
+              label="Total impressions"
+              value={formatCompactNumber(discoverySummary.totalImpressions)}
+              pillText={formatSignedPercentLabel(discoverySummary.impressionsDelta)}
+              tone={discoverySummary.impressionsDelta >= 0 ? "good" : "warn"}
+            />
+            <MetaCompactSummaryCard label="Total followers" value={formatNumber(discoverySummary.totalFollowers)} pillText={rangeLabel} tone="neutral" />
+            <MetaCompactSummaryCard label="Total page visits" value={formatCompactNumber(discoverySummary.totalPageVisits)} pillText={rangeLabel} tone="neutral" />
+          </div>
+          {simplified && <MetaTakeawayCard items={discoveryTakeaways} periodLabel={rangeLabel} />}
         </div>
       )}
 
