@@ -318,6 +318,14 @@ export function summarizeCampaignHighlight(rows: MetaRow[]) {
   };
 }
 
+/** One campaign's spend, attributed revenue and ROAS for a single month. */
+function summarizeCampaignMonth(rows: MetaRow[], monthKey: string, monthLabel: string) {
+  const monthRows = rows.filter((row) => row.key === monthKey);
+  const spend = sumMetric(monthRows, "spend");
+  const revenue = sumMetric(monthRows, "revenue");
+  return { monthLabel, spend, revenue, roas: spend > 0 ? revenue / spend : 0 };
+}
+
 function averageOfRows(rows: MetaRow[], getter: (row: MetaRow) => unknown): number {
   const values = rows.map((row) => numeric(getter(row))).filter((value) => value > 0);
   if (!values.length) return 0;
@@ -467,6 +475,8 @@ export type MetaHighlightCardModel = {
   isOpen: boolean;
   accent: MetaChannelAccent;
   summary: ReturnType<typeof summarizeCampaignHighlight>;
+  /** This campaign's figures for the report's current month only (the simplified layout's channel cards). */
+  current: { monthLabel: string; spend: number; revenue: number; roas: number };
 };
 
 export type MetaChartSeries = { name: string; data: number[]; color?: string };
@@ -808,6 +818,7 @@ export function buildMetaViewModel(
       isOpen: !!expandedCampaigns[toggleKey],
       accent: campaignAccent(campaignType),
       summary: summarizeCampaignHighlight(rows),
+      current: summarizeCampaignMonth(rows, currentMonth ? currentMonth.key : selectedMonth, currentMonthLabel),
     };
   });
 

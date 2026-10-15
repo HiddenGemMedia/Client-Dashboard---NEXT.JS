@@ -1,8 +1,9 @@
 "use client";
 
 import type { MetaHighlightCardModel } from "@/lib/meta-model";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatMultiple } from "@/lib/format";
 import { useDashboardDispatch } from "@/hooks/useDashboardState";
+import { useSimplifiedLayout } from "@/hooks/useSimplifiedLayout";
 
 function MetaChannelStat({ label, value, note }: { label: string; value: string; note: string }) {
   const isPeak = label === "Peak Month";
@@ -18,7 +19,8 @@ function MetaChannelStat({ label, value, note }: { label: string; value: string;
 /** Ported from renderMetaCampaignHighlightCard(). */
 export function MetaCampaignHighlightCard({ card }: { card: MetaHighlightCardModel }) {
   const dispatch = useDashboardDispatch();
-  const { campaignType, toggleKey, isOpen, accent, summary } = card;
+  const { campaignType, toggleKey, isOpen, accent, summary, current } = card;
+  const simplified = useSimplifiedLayout();
 
   return (
     <article
@@ -50,11 +52,19 @@ export function MetaCampaignHighlightCard({ card }: { card: MetaHighlightCardMod
           {isOpen ? "Hide" : "Show"}
         </button>
       </div>
-      <div className="meta-channel-stats">
-        <MetaChannelStat label="Total Spend" value={formatCurrency(summary.totalSpend, 0)} note={`${summary.monthCount}-month total`} />
-        <MetaChannelStat label="Revenue" value={formatCurrency(summary.totalRevenue, 0)} note="Attributed" />
-        <MetaChannelStat label="Peak Month" value={summary.peakMonthLabel} note={summary.peakMonthNote} />
-      </div>
+      {simplified ? (
+        <div className="meta-channel-stats">
+          <MetaChannelStat label="Spend" value={formatCurrency(current.spend, 0)} note={current.monthLabel} />
+          <MetaChannelStat label="Revenue" value={formatCurrency(current.revenue, 0)} note={`Attributed, ${current.monthLabel}`} />
+          <MetaChannelStat label="ROAS" value={formatMultiple(current.roas)} note={current.monthLabel} />
+        </div>
+      ) : (
+        <div className="meta-channel-stats">
+          <MetaChannelStat label="Total Spend" value={formatCurrency(summary.totalSpend, 0)} note={`${summary.monthCount}-month total`} />
+          <MetaChannelStat label="Revenue" value={formatCurrency(summary.totalRevenue, 0)} note="Attributed" />
+          <MetaChannelStat label="Peak Month" value={summary.peakMonthLabel} note={summary.peakMonthNote} />
+        </div>
+      )}
     </article>
   );
 }
